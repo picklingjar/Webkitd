@@ -8,8 +8,40 @@ python 2.6
 pyqt http://www.riverbankcomputing.co.uk/software/pyqt/download
 pyquery http://pypi.python.org/pypi/pyquery
 spynner 0.0.3 (modified) - See depends directory: install with - cd depends/spynner-0.0.3; sudo python setup.py install
+Xvfb - Install (centos) yum install xorg-x11-server-Xvfb
+
+
+Starting Webkitd
+----------------
+./scripts/xvfb-run.sh python2.7 webkitd.py
+
+
+Using Webkitd
+-------------
+
+The syntax is COMMAND-SPACE-ARGUMENTS
+
+Basic usage is along of the lines of
+
+nc 127.0.0.1 3817 <-- connect to Webkitd using netcat
+1 http://www.thepicklingjar.com <-- Command 1 sets the url to load
+13 <-- Command 13 executes request
+15 <-- Command 15 returns the html, all links should be resolved to their full path
+25 _jQuery('#content').html('test text'); <-- Command 25 runs javascript, updating content div with "test text"
+15 <-- Command 15 also returns the html after javascript has run
+
+Note: Some commands return binary data with the length followed by the data 
+      thus you may want to script webkitd with a language such as php.
+      See examples/webkitdclient.php for an overview
 
 Howto
 -----
 
-See examples directory for a php interface to the python server
+See examples directory for a php interface to Webkitd
+
+
+Notes
+-----
+
+Not as headless as we'd like but running with a framebuffer has fixed the rendering of certain sites (fifa.com for example).
+
