@@ -49,3 +49,4 @@ Notes
 
 Not as headless as we'd like but running with a framebuffer has fixed the rendering of certain sites (fifa.com for example).
 
+The usual Jquery selector $() should be replaced with _jquery to use the internal jquery module
