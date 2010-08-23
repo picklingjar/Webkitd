@@ -4,11 +4,12 @@ http://www.thepicklingjar.com/
 
 Requirements
 ------------
-python 2.6
+python 2.6+ http://www.python.org
+QT 4.6.3+ Framework only http://qt.nokia.com/downloads/downloads#lgpl
 pyqt http://www.riverbankcomputing.co.uk/software/pyqt/download
 pyquery http://pypi.python.org/pypi/pyquery
 spynner 0.0.3 (modified) - See depends directory: install with - cd depends/spynner-0.0.3; sudo python setup.py install
-Xvfb - Install (centos) yum install xorg-x11-server-Xvfb
+Xvfb (X windows virtual framebuffer) - Install (centos) yum install xorg-x11-server-Xvfb
 
 
 Starting Webkitd
