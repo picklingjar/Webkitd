@@ -29,6 +29,7 @@ class Webkitd(SocketServer.BaseRequestHandler):
 	quit = 0
 	url = None
 	httpmethod = 'GET'
+
 	def setup(self):
 		Webkitd.url = None
 		Webkitd.quit = 0
