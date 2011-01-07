@@ -1,5 +1,5 @@
 Webkitd - A headless webkit daemon written in python
-Copyright (C) 2010 The Pickling Jar Ltd
+Copyright (C) 2011 The Pickling Jar Ltd
 http://www.thepicklingjar.com/
 http://www.thepicklingjar.com/code/webkitd/
 
@@ -9,6 +9,7 @@ Requirements
 ------------
 python 2.6+ http://www.python.org
 QT 4.6.3+ Framework only http://qt.nokia.com/downloads/downloads#lgpl
+SIP http://www.riverbankcomputing.com/software/sip/download
 pyqt http://www.riverbankcomputing.co.uk/software/pyqt/download
 pyquery http://pypi.python.org/pypi/pyquery
 spynner 0.0.3 (modified) - See depends directory: install with - cd depends/spynner-0.0.3; sudo python setup.py install
@@ -17,7 +18,7 @@ Xvfb (X windows virtual framebuffer) - Install (centos) yum install xorg-x11-ser
 
 Starting Webkitd
 ----------------
-./scripts/xvfb-run.sh python2.7 webkitd.py
+./scripts/xvfb-run.sh python2.6 webkitd.py
 
 
 Using Webkitd
@@ -30,9 +31,9 @@ Basic usage is along of the lines of
 nc 127.0.0.1 3817 <-- connect to Webkitd using netcat
 1 http://www.thepicklingjar.com <-- Command 1 sets the url to load
 13 <-- Command 13 executes request
-15 <-- Command 15 returns the html, all links are resolved to their full path
+15 <-- Command 15 returns the html, all links are resolved to full paths
 25 _jQuery('#content').html('test text'); <-- Command 25 runs javascript, updating content div with "test text"
-15 <-- Command 15 also returns the html after javascript has run
+15 <-- Command 15 returns the html after javascript has run
 
 Note: Some commands return binary data with the length followed by the data 
       thus you may want to script webkitd with a language such as php.
@@ -47,6 +48,6 @@ See examples directory for a php interface to Webkitd
 Notes
 -----
 
-Not as headless as we'd like but running with a framebuffer has fixed the rendering of certain sites (fifa.com for example).
+Not as headless as we'd like but running with a framebuffer fixed the rendering of certain sites (fifa.com for example).
 
-The usual Jquery selector $() should be replaced with _jquery to use the internal jquery module
+The usual Jquery selector $() should be replaced with _jQuery to use the internal jquery module
