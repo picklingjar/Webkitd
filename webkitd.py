@@ -29,11 +29,12 @@ class Webkitd(SocketServer.BaseRequestHandler):
 	quit = 0
 	url = None
 	httpmethod = 'GET'
+	browser = spynner.Browser()
 
 	def setup(self):
 		Webkitd.url = None
 		Webkitd.quit = 0
-		Webkitd.browser = spynner.Browser(None, 3)
+		#Webkitd.browser = spynner.Browser() #None, 3)
 		Webkitd.browser.set_html_parser(pyquery.PyQuery)
 		Webkitd.browser.user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.7) Gecko/20100701 Firefox/3.6.7'
 		Webkitd.browser.referrer = None
@@ -310,9 +311,8 @@ if __name__ == "__main__":
 	SocketServer.TCPServer.allow_reuse_address = 1 
 	#server = SocketServer.TCPServer((HOST, PORT), Webkitd)
 	server = ForkingServer((HOST, PORT), Webkitd)
-	t = threading.Thread(target=server.serve_forever)
-	t.setDaemon(True) # don't hang on exit
-	t.start()
-
+	#t = threading.Thread(target=server.serve_forever)
+	#t.setDaemon(True) # don't hang on exit
+	#t.start()
 	print >> sys.stderr, 'WebkitD server started: waiting for connections...'
 	server.serve_forever()
