@@ -22,6 +22,7 @@ import SocketServer
 import threading
 import sys
 import tempfile
+import platform
 from PyQt4.QtNetwork import QNetworkRequest
 from PyQt4.QtCore import QUrl
 
@@ -29,12 +30,11 @@ class Webkitd(SocketServer.BaseRequestHandler):
 	quit = 0
 	url = None
 	httpmethod = 'GET'
-	browser = spynner.Browser()
 
 	def setup(self):
 		Webkitd.url = None
 		Webkitd.quit = 0
-		#Webkitd.browser = spynner.Browser() #None, 3)
+		Webkitd.browser = spynner.Browser(None, 3)
 		Webkitd.browser.set_html_parser(pyquery.PyQuery)
 		Webkitd.browser.user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.7) Gecko/20100701 Firefox/3.6.7'
 		Webkitd.browser.referrer = None
@@ -148,7 +148,7 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		#Webkitd.browser.set_html_parser(pyquery.PyQuery)
 		Webkitd.browser.soup = Webkitd.browser._get_soup()
 		Webkitd.browser.soup = Webkitd.browser.soup.make_links_absolute(base_url=Webkitd.browser.url)
-		Webkitd.browser.soup = Webkitd.browser.soup.make_img_urls_absolute(base_url=Webkitd.browser.url)
+		#Webkitd.browser.soup = Webkitd.browser.soup.make_img_urls_absolute(base_url=Webkitd.browser.url)
 		soup = "%s" % Webkitd.browser.soup
 		length = len(soup);
 		self.request.send('%d\n' % length)
@@ -199,7 +199,7 @@ class Webkitd(SocketServer.BaseRequestHandler):
 
 	def cmdreturnimage(self,imgpath):
 		Webkitd.browser.soup = Webkitd.browser.soup.make_links_absolute(base_url=Webkitd.browser.url)
-		Webkitd.browser.soup = Webkitd.browser.soup.make_img_urls_absolute(base_url=Webkitd.browser.url)
+		#Webkitd.browser.soup = Webkitd.browser.soup.make_img_urls_absolute(base_url=Webkitd.browser.url)
 		tf = tempfile.TemporaryFile()
 		print tf
 		length = Webkitd.browser.download(Webkitd.browser.soup("img:first").attr('src'), tf)
@@ -309,8 +309,11 @@ class ForkingServer(SocketServer.ForkingMixIn,SocketServer.TCPServer):
 if __name__ == "__main__":
 	HOST, PORT = "localhost", 3817
 	SocketServer.TCPServer.allow_reuse_address = 1 
-	#server = SocketServer.TCPServer((HOST, PORT), Webkitd)
-	server = ForkingServer((HOST, PORT), Webkitd)
+	if platform.system() == 'Darwin':
+		#no forking on os x due to CoreFoundations - TODO
+		server = SocketServer.TCPServer((HOST, PORT), Webkitd)
+	else:
+		server = ForkingServer((HOST, PORT), Webkitd)
 	#t = threading.Thread(target=server.serve_forever)
 	#t.setDaemon(True) # don't hang on exit
 	#t.start()
