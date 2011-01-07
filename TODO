@@ -3,4 +3,4 @@ TODO
 iframe support
 push changes back upstream to spynner
 
-fix OS X bug - The process has forked and you cannot use this CoreFoundation functionality safely. You MUST exec()
+fix OS X bug for forking version - The process has forked and you cannot use this CoreFoundation functionality safely. You MUST exec()
