@@ -19,10 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import spynner
 import pyquery
 import SocketServer
-import threading
 import sys
 import tempfile
 import platform
+import os
 from PyQt4.QtNetwork import QNetworkRequest
 from PyQt4.QtCore import QUrl
 
@@ -197,41 +197,157 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		self.request.sendall('%s' % header)
 		print "%s << %s" % (self.client_address[0],header)
 
-	def cmdreturnimage(self,imgpath):
-		Webkitd.browser.soup = Webkitd.browser.soup.make_links_absolute(base_url=Webkitd.browser.url)
-		#Webkitd.browser.soup = Webkitd.browser.soup.make_img_urls_absolute(base_url=Webkitd.browser.url)
-		tf = tempfile.TemporaryFile()
-		print tf
-		length = Webkitd.browser.download(Webkitd.browser.soup("img:first").attr('src'), tf)
-		self.request.send('%d\n' % length)
-		print "%s << %d img byte count" % (self.client_address[0],length)
-		tf.seek(0,0)
-		self.request.sendall('%s' % tf.read(length))
-		print "%s << IMG ACTUAL BYTES" % self.client_address[0]
-
-        def cmdinputfill(self,selector,value):
-		self.request.send('todo\n')
-		print "%s << todo" % self.client_address[0]
+	def cmdreturnimage(self,regex):
+                imgnumberfunc = ("\
+			function imgnumberfromregex() { \
+				var i = 0; \
+				for(i = 0; i < document.images.length; i++){ \
+					var re = "+regex+"; \
+					match = re.exec(document.images[i].src); \
+					if(match){ \
+						return i; \
+		                        } \
+        	        	} \
+				return -1; \
+			} \
+			imgnumberfromregex(); \
+		");
+		imgnumber = Webkitd.browser.runjs(imgnumberfunc).toString()
+		if imgnumber == -1:
+			self.request.send('0\n')
+			print "%s << 0 img byte count - regex failed to find match" % (self.client_address[0])
+			return
 		
-        def cmdinputcheck(self,selector,value):
+		#Public Domain findpos funcs thanks to Peter-Paul Koch (quirksmode.org) & Alex Tingle (blog.firetree.net) 
+		posfuncs = ("function findPosX(obj) { \
+		    var curleft = 0; \
+		    if(obj.offsetParent) \
+			while(1) \
+			{ \
+			  curleft += obj.offsetLeft; \
+			  if(!obj.offsetParent) \
+			    break; \
+			  obj = obj.offsetParent; \
+			} \
+		    else if(obj.x) \
+			curleft += obj.x; \
+		    return curleft; \
+		} \
+		function findPosY(obj){ \
+		    var curtop = 0; \
+		    if(obj.offsetParent) \
+			while(1) \
+			{ \
+			  curtop += obj.offsetTop; \
+			  if(!obj.offsetParent) \
+			    break; \
+			  obj = obj.offsetParent; \
+			} \
+		    else if(obj.y) \
+			curtop += obj.y; \
+		    return curtop; \
+		} \
+		")
+		
+		posfuncsx1 = ("findPosX(document.images["+imgnumber+"])");
+		posfuncsy1 = ("findPosY(document.images["+imgnumber+"])");
+		posfuncsx2 = ("findPosX(document.images["+imgnumber+"])+document.images["+imgnumber+"].width");
+		posfuncsy2 = ("findPosY(document.images["+imgnumber+"])+document.images["+imgnumber+"].height");
+		x1 = int(Webkitd.browser.runjs(posfuncs + posfuncsx1).toString())
+		y1 = int(Webkitd.browser.runjs(posfuncs + posfuncsy1).toString())
+		x2 = int(Webkitd.browser.runjs(posfuncs + posfuncsx2).toString())
+		y2 = int(Webkitd.browser.runjs(posfuncs + posfuncsy2).toString())
+		box = [x1, y1, x2, y2]
+
+		tffileno, tfname= tempfile.mkstemp('.png')
+		Webkitd.browser.snapshot(box).save(tfname)
+		fd = os.fdopen(tffileno, 'r')
+		self.request.send('%d\n' % os.path.getsize(tfname))
+		print "%s << %d img byte count" % (self.client_address[0],os.path.getsize(tfname))
+		fd.seek(0,0)
+		self.request.sendall('%s' % (fd.read(os.path.getsize(tfname))))
+		print "%s << IMG BINARY DATA" % self.client_address[0]
+		fd.close()
+		os.remove(tfname)
+		
+        def cmdinputfill(self,cmd):
+		c = cmd.partition(" ")
+		selector = c[0]
+		value = c[2]
+		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+selector+"').length){ return(1) } else { return(0) } })();").toString())
+		if valid != 1:
+			self.request.send('fail\n')
+			print "%s << failed to find selector" % self.client_address[0]
+		else:
+			Webkitd.browser.fill(selector,value);
+			self.request.send('ok\n')
+			print "%s << ok" % self.client_address[0]
+		
+        def cmdinputcheck(self,cmd):
+		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+cmd+"').length){ return(1) } else { return(0) } })();").toString())
+		if valid != 1:
+			self.request.send('fail\n')
+			print "%s << failed to find selector" % self.client_address[0]
+		else:
+			Webkitd.browser.check(cmd);
+			self.request.send('ok\n')
+			print "%s << ok" % self.client_address[0]
+
+        def cmdinputuncheck(self,cmd):
+		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+cmd+"').length){ return(1) } else { return(0) } })();").toString())
+		if valid != 1:
+			self.request.send('fail\n')
+			print "%s << failed to find selector" % self.client_address[0]
+		else:
+			Webkitd.browser.uncheck(cmd);
+			self.request.send('ok\n')
+			print "%s << ok" % self.client_address[0]
+
+        def cmdinputchoose(self,cmd):
+		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+cmd+"').length){ return(1) } else { return(0) } })();").toString())
+		if valid != 1:
+			self.request.send('fail\n')
+			print "%s << failed to find selector" % self.client_address[0]
+		else:
+			Webkitd.browser.choose(cmd);
+			self.request.send('ok\n')
+			print "%s << ok" % self.client_address[0]
+
+        def cmdinputselect(self,cmd):
+		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+cmd+"').length){ return(1) } else { return(0) } })();").toString())
+		if valid != 1:
+			self.request.send('fail\n')
+			print "%s << failed to find selector" % self.client_address[0]
+		else:
+			Webkitd.browser.select(cmd);
+			self.request.send('ok\n')
+			print "%s << ok" % self.client_address[0]
+
+        def cmdformsubmit(self,cmd):
 		self.request.send('todo\n')
 		print "%s << todo" % self.client_address[0]
 
-        def cmdinputuncheck(self,selector,value):
-		self.request.send('todo\n')
-		print "%s << todo" % self.client_address[0]
+        def cmdscreenshot(self,cmd):
+                tffileno, tfname= tempfile.mkstemp('.png')
+                Webkitd.browser.snapshot().save(tfname)
+                fd = os.fdopen(tffileno, 'r')
+                self.request.send('%d\n' % os.path.getsize(tfname))
+                print "%s << %d img byte count" % (self.client_address[0],os.path.getsize(tfname))
+                fd.seek(0,0)
+                self.request.sendall('%s' % (fd.read(os.path.getsize(tfname))))
+                print "%s << IMG BINARY DATA" % self.client_address[0]
+                fd.close()
+                os.remove(tfname)
 
-        def cmdinputchoose(self,selector,value):
-		self.request.send('todo\n')
-		print "%s << todo" % self.client_address[0]
-
-        def cmdinputselect(self,selector,value):
-		self.request.send('todo\n')
-		print "%s << todo" % self.client_address[0]
-
-        def cmdformsubmit(self,selector,value):
-		self.request.send('todo\n')
-		print "%s << todo" % self.client_address[0]
+        def cmdclicklink(self,cmd):
+		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+cmd+"').length){ return(1) } else { return(0) } })();").toString())
+		if valid != 1:
+			self.request.send('fail\n')
+			print "%s << failed to find selector" % self.client_address[0]
+		else:
+			Webkitd.browser.click_link(cmd);
+			self.request.send('ok\n')
+			print "%s << ok" % self.client_address[0]
 
 	def cmdstat(self,cmd):
 		self.request.send('ok\n')
@@ -276,6 +392,8 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		29 : cmdinputchoose,
 		30 : cmdinputselect,
 		31 : cmdformsubmit,
+		32 : cmdscreenshot,
+		33 : cmdclicklink,
 		99 : cmdstat,
 		0 : cmdhelp
 	}
@@ -314,8 +432,5 @@ if __name__ == "__main__":
 		server = SocketServer.TCPServer((HOST, PORT), Webkitd)
 	else:
 		server = ForkingServer((HOST, PORT), Webkitd)
-	#t = threading.Thread(target=server.serve_forever)
-	#t.setDaemon(True) # don't hang on exit
-	#t.start()
 	print >> sys.stderr, 'WebkitD server started: waiting for connections...'
 	server.serve_forever()

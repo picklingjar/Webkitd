@@ -33,12 +33,12 @@ function run_test(){
 
 
 	//set url
-	$res = webkitd_url($fd, 'http://www.thepicklingjar.com/');
+	$res = webkitd_url($fd, 'http://127.0.0.1/wkd/index.php');
 	if($res == false){
 		webkitd_close($fd);
 		die('Error: webkitd couldn\'t set url'."\n");
 	}
-
+/*
 	//set useragent
 	$res = webkitd_setuseragent($fd, 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)');
 	if($res == false){
@@ -75,7 +75,7 @@ function run_test(){
 		webkitd_close($fd);
 		die('Error: webkitd couldn\'t set http get'."\n");
 	}
-
+*/
 	//run request
 	$res = webkitd_execute($fd);
 	if($res == false){
@@ -100,26 +100,79 @@ function run_test(){
 	echo "header: ".$header."\n";
 	*/
 
-	//run jquery, NOTE use _jQuery not _$
-	$res = webkitd_runjs($fd, "_jQuery('#test').html('test text js1');");
-
-	//returns tag soup
+	//run internal jquery, use _jQuery not _$
+	/*$res = webkitd_runjs($fd, "_jQuery('#content').html('test text js 1');");
 	$html = webkitd_gethtml($fd);
 	if($html == false){
 		webkitd_close($fd);
 		die('Error: webkitd couldn\'t get html'."\n");
 	}
 	echo "HTML: ".$html."\n";
+	$html = webkitd_gethtml($fd);
+	if($html == false){
+		webkitd_close($fd);
+		die('Error: webkitd couldn\'t get html'."\n");
+	}
+	echo "HTML: ".$html."\n";
+	$res = webkitd_runjs($fd, "_jQuery('#content').html('test text js 2');");
+	$html = webkitd_gethtml($fd);
+	if($html == false){
+		webkitd_close($fd);
+		die('Error: webkitd couldn\'t get html'."\n");
+	}
+	echo "HTML: ".$html."\n";*/
 
 	//return image based on regex
-	$regex = '';
+/*
+	$regex = "/.*pic.*jpg/i";
 	$imgdata = webkitd_returnimage($fd, $regex);
 	if($imgdata == false){
 		webkitd_close($fd);
-		die('Error: webkitd couldn\'t return image'."\n");
+		die('Error: webkitd couldn\'t return image, possibly due to regex failing'."\n");
 	}
 	else {
-		$ifd = fopen('./img.jpg','w');
+		$ifd = fopen('./img1.jpg','w');
+		if($ifd){ 
+			fwrite($ifd,$imgdata);
+			fclose($ifd);
+			echo ('wrote image'."\n");
+		}
+		else {
+			echo ('didn\'t write image'."\n");
+		}
+	}
+	$regex = "/.*bin.*jpg/i";
+	$imgdata = webkitd_returnimage($fd, $regex);
+	if($imgdata == false){
+		webkitd_close($fd);
+		die('Error: webkitd couldn\'t return image, possibly due to regex failing'."\n");
+	}
+	else {
+		$ifd = fopen('./img2.jpg','w');
+		if($ifd){ 
+			fwrite($ifd,$imgdata);
+			fclose($ifd);
+			echo ('wrote image'."\n");
+		}
+		else {
+			echo ('didn\'t write image'."\n");
+		}
+	}
+	$res = webkitd_runjs($fd, "_jQuery('#content').html('test text js 3');");
+	$html = webkitd_gethtml($fd);
+	if($html == false){
+		webkitd_close($fd);
+		die('Error: webkitd couldn\'t get html'."\n");
+	}
+	echo "HTML: ".$html."\n";
+*/
+	$imgdata = webkitd_screenshot($fd, $regex);
+	if($imgdata == false){
+		webkitd_close($fd);
+		die('Error: webkitd couldn\'t return screenshot'."\n");
+	}
+	else {
+		$ifd = fopen('./screenshot1.jpg','w');
 		if($ifd){ 
 			fwrite($ifd,$imgdata);
 			fclose($ifd);
@@ -130,22 +183,98 @@ function run_test(){
 		}
 	}
 
-	$res = webkitd_runjquery($fd, "_jQuery('#content').html('test text js 2');");
+	$selector = 'input[name=surname]';
+	$value = 'test 123';
+	$res = webkitd_inputfill($fd, $selector, $value);
+	if($res == true){
+		echo ('inputfill ok'."\n");
+	}
+	else {
+		echo ('inputfill failed, probably due to incorrect selector'."\n");
+	}
+
+
+	$selector = 'input[name=terms]';
+	$res = webkitd_inputcheck($fd, $selector);
+	if($res == true){
+		echo ('inputcheck ok'."\n");
+	}
+	else {
+		echo ('inputcheck failed, probably due to incorrect selector'."\n");
+	}
+
+	$imgdata = webkitd_screenshot($fd, $regex);
+	if($imgdata == false){
+		webkitd_close($fd);
+		die('Error: webkitd couldn\'t return screenshot'."\n");
+	}
+	else {
+		$ifd = fopen('./screenshot2.jpg','w');
+		if($ifd){ 
+			fwrite($ifd,$imgdata);
+			fclose($ifd);
+			echo ('wrote image'."\n");
+		}
+		else {
+			echo ('didn\'t write image'."\n");
+		}
+	}
+
+	$selector = 'select[name=company] option[value=Trainline.com]';
+	$res = webkitd_inputselect($fd, $selector);
+	if($res == true){
+		echo ('inputselect ok'."\n");
+	}
+	else {
+		echo ('inputselect failed, probably due to incorrect selector'."\n");
+	}
+
+	$selector = 'input[name=group] option[value=notagree]';
+	$res = webkitd_inputchoose($fd, $selector);
+	if($res == true){
+		echo ('inputchoose ok'."\n");
+	}
+	else {
+		echo ('inputchoose failed, probably due to incorrect selector'."\n");
+	}
+
+	$imgdata = webkitd_screenshot($fd, $regex);
+	if($imgdata == false){
+		webkitd_close($fd);
+		die('Error: webkitd couldn\'t return screenshot'."\n");
+	}
+	else {
+		$ifd = fopen('./screenshot3.jpg','w');
+		if($ifd){ 
+			fwrite($ifd,$imgdata);
+			fclose($ifd);
+			echo ('wrote image'."\n");
+		}
+		else {
+			echo ('didn\'t write image'."\n");
+		}
+	}
+	$selector = 'input[name=Submit]';
+	$res = webkitd_clicklink($fd, $selector);
+	if($res == true){
+		echo ('ok'."\n");
+	}
+	else {
+		echo ('click link failed or timed out'."\n");
+	}
+
+	$url = webkitd_returnurl($fd);
+	if($url == false){
+		webkitd_close($fd);
+		die('Error: webkitd couldn\'t return url'."\n");
+	}
+	echo "url: ".$url."\n";
 	$html = webkitd_gethtml($fd);
 	if($html == false){
 		webkitd_close($fd);
 		die('Error: webkitd couldn\'t get html'."\n");
 	}
 	echo "HTML: ".$html."\n";
-
-	/*
-	$res = webkitd_inputfill("input[name=enit]", "hola");
-	$res = webkitd_inputcheck("input[name=enit]", "hola");
-	$res = webkitd_inputuncheck("input[name=enit]", "hola");
-	$res = webkitd_inputchoose("input[name=enit]", "hola");
-	$res = webkitd_inputselect("input[name=enit]", "hola");
-	$res = webkitd_formsubmit("input[name=enit]", "hola");
-	*/
 
 	//close the connection to be nice to the server
 	$res = webkitd_close($fd);
