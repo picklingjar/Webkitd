@@ -352,8 +352,8 @@ class Browser:
     html = property(_get_html)
     """Rendered HTML in current page."""
                  
-    #soup = property(_get_soup) #doesn't update soup when called
-    soup = None #lazy fix - removing the property fixes it
+    soup = property(_get_soup) #doesn't update soup when called
+    #soup = None #lazy fix - removing the property fixes it
     """HTML soup (see L{set_html_parser})."""
                
     #{ Basic interaction with browser

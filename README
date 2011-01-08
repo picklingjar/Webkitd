@@ -5,6 +5,7 @@ http://www.thepicklingjar.com/code/webkitd/
 
 Version 0.1.0 (Alpha - expect bugs)
 
+
 Requirements
 ------------
 python 2.6+ http://www.python.org
@@ -26,13 +27,14 @@ Using Webkitd
 
 The syntax is COMMAND-SPACE-ARGUMENTS
 
-Basic usage is along of the lines of
+Basic usage is along of the lines of the following
 
 nc 127.0.0.1 3817 <-- connect to Webkitd using netcat
+
 1 http://www.thepicklingjar.com <-- Command 1 sets the url to load
 13 <-- Command 13 executes request
 15 <-- Command 15 returns the html, all links are resolved to full paths
-25 _jQuery('#content').html('test text'); <-- Command 25 runs javascript, updating content div with "test text"
+25 _jQuery('#content').html('test text'); <-- Command 25 runs jQuery, updating content div with "test text"
 15 <-- Command 15 returns the html after javascript has run
 
 Note: Some commands return binary data with the length followed by the data 

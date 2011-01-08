@@ -48,6 +48,8 @@ define('CMDINPUTUNCHECK', 28);
 define('CMDINPUTCHOOSE', 29);
 define('CMDINPUTSELECT', 30);
 define('CMDFORMSUBMIT', 31);
+define('CMDSCREENSHOT', 32);
+define('CMDCLICKLINK', 33);
 define('CMDSTAT', 99);
 define('CMDHELP', 0);
 
@@ -218,6 +220,8 @@ function webkitd_returnimage($fd,$regex){
 	fwrite($fd, CMDRETURNIMAGE." ".$regex."\n");
 	$img = '';
 	$len = fgets($fd, 1024);
+	if($len == 0) return false; //regex failed to find match
+
 	//echo "imagelen ".$len;
 	$tlen = 0;
 	while($tlen < $len) {
@@ -236,5 +240,84 @@ function webkitd_runjquery($fd, $js){
 	fwrite($fd, CMDRUNJQUERY." ".$js."\n");
 	$str = fgets($fd, 1024);
 	return $str;
+}
+
+//26
+function webkitd_inputfill($fd, $selector, $value){
+	fwrite($fd, CMDINPUTFILL." ".$selector." ".$value."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	return false;
+}
+
+//27
+function webkitd_inputcheck($fd, $selector){
+	fwrite($fd, CMDINPUTCHECK." ".$selector."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	return false;
+}
+
+//28
+function webkitd_inputuncheck($fd, $selector){
+	fwrite($fd, CMDINPUTUNCHECK." ".$selector."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	return false;
+}
+
+//29
+function webkitd_inputchoose($fd, $selector){
+	fwrite($fd, CMDINPUTCHOOSE." ".$selector."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	return false;
+}
+
+//30
+function webkitd_inputselect($fd, $selector){
+	fwrite($fd, CMDINPUTSELECT." ".$selector."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	return false;
+}
+
+//32
+function webkitd_screenshot($fd){
+	fwrite($fd, CMDSCREENSHOT."\n");
+	$img = '';
+	$len = fgets($fd, 1024);
+	if($len == 0) return false;
+
+	$tlen = 0;
+	while($tlen < $len) {
+		//echo "tlen: ".$tlen;
+		//echo "len: ".$len;
+		$fragment = fread($fd, $len);
+		//echo $fragment;
+		$img .= $fragment;
+		$tlen += strlen($fragment);
+	}
+	return $img;
+}
+
+//33
+function webkitd_clicklink($fd,$selector){
+	fwrite($fd, CMDCLICKLINK." ".$selector."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	return false;
 }
 ?>
