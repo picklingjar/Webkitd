@@ -277,7 +277,7 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+selector+"').length){ return(1) } else { return(0) } })();").toString())
 		if valid != 1:
 			self.request.send('fail\n')
-			print "%s << failed to find selector" % self.client_address[0]
+			print "%s << failed to find selector - %s" % (self.client_address[0],selector)
 		else:
 			Webkitd.browser.fill(selector,value);
 			self.request.send('ok\n')
@@ -287,7 +287,7 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+cmd+"').length){ return(1) } else { return(0) } })();").toString())
 		if valid != 1:
 			self.request.send('fail\n')
-			print "%s << failed to find selector" % self.client_address[0]
+			print "%s << failed to find selector - %s" % (self.client_address[0],cmd)
 		else:
 			Webkitd.browser.check(cmd);
 			self.request.send('ok\n')
@@ -297,19 +297,22 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+cmd+"').length){ return(1) } else { return(0) } })();").toString())
 		if valid != 1:
 			self.request.send('fail\n')
-			print "%s << failed to find selector" % self.client_address[0]
+			print "%s << failed to find selector - %s" % (self.client_address[0],cmd)
 		else:
 			Webkitd.browser.uncheck(cmd);
 			self.request.send('ok\n')
 			print "%s << ok" % self.client_address[0]
 
         def cmdinputchoose(self,cmd):
-		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+cmd+"').length){ return(1) } else { return(0) } })();").toString())
+		c = cmd.partition(" ")
+		selector = c[0]
+		value = c[2]
+		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+selector+"').length){ return(1) } else { return(0) } })();").toString())
 		if valid != 1:
 			self.request.send('fail\n')
-			print "%s << failed to find selector" % self.client_address[0]
+			print "%s << failed to find selector - %s" % (self.client_address[0],selector)
 		else:
-			Webkitd.browser.choose(cmd);
+			Webkitd.browser.choose(selector, value);
 			self.request.send('ok\n')
 			print "%s << ok" % self.client_address[0]
 
@@ -317,7 +320,7 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+cmd+"').length){ return(1) } else { return(0) } })();").toString())
 		if valid != 1:
 			self.request.send('fail\n')
-			print "%s << failed to find selector" % self.client_address[0]
+			print "%s << failed to find selector - %s" % (self.client_address[0],cmd)
 		else:
 			Webkitd.browser.select(cmd);
 			self.request.send('ok\n')
@@ -340,12 +343,15 @@ class Webkitd(SocketServer.BaseRequestHandler):
                 os.remove(tfname)
 
         def cmdclicklink(self,cmd):
-		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+cmd+"').length){ return(1) } else { return(0) } })();").toString())
+		c = cmd.partition(" ")
+		selector = c[0]
+		timeout = c[2]
+		valid = int(Webkitd.browser.runjs("(function () { if(_jQuery('"+selector+"').length){ return(1) } else { return(0) } })();").toString())
 		if valid != 1:
 			self.request.send('fail\n')
-			print "%s << failed to find selector" % self.client_address[0]
+			print "%s << failed to find selector - %s" % (self.client_address[0],selector)
 		else:
-			Webkitd.browser.click_link(cmd);
+			Webkitd.browser.click_link(selector, timeout);
 			self.request.send('ok\n')
 			print "%s << ok" % self.client_address[0]
 
