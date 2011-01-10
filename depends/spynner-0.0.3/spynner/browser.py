@@ -506,7 +506,7 @@ class Browser:
     def choose(self, selector, value):
         """Choose a radio input using a jQuery selector."""
         escaped_value = value.replace("'", "\\'")
-        jscode = "%s('%s').filter('value=$s').simulate('click')" % (self.jslib, selector, escaped_value)
+        jscode = "%s('%s').filter('[value=%s]').simulate('click')" % (self.jslib, selector, escaped_value)
         self._runjs_on_jquery("choose", jscode)
 
     def select(self, selector):

@@ -273,8 +273,8 @@ function webkitd_inputuncheck($fd, $selector){
 }
 
 //29
-function webkitd_inputchoose($fd, $selector){
-	fwrite($fd, CMDINPUTCHOOSE." ".$selector."\n");
+function webkitd_inputchoose($fd, $selector, $value){
+	fwrite($fd, CMDINPUTCHOOSE." ".$selector." ".$value."\n");
 	$str = fgets($fd, 1024);
 	if(trim($str) == 'ok'){
 		return true;
@@ -312,8 +312,8 @@ function webkitd_screenshot($fd){
 }
 
 //33
-function webkitd_clicklink($fd,$selector){
-	fwrite($fd, CMDCLICKLINK." ".$selector."\n");
+function webkitd_clicklink($fd, $selector, $timeout = 300){
+	fwrite($fd, CMDCLICKLINK." ".$selector." ".$timeout."\n");
 	$str = fgets($fd, 1024);
 	if(trim($str) == 'ok'){
 		return true;
