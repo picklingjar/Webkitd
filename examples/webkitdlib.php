@@ -33,10 +33,10 @@ define('CMDEXECUTE', 13); //done
 define('CMDQUIT', 14); //done
 define('CMDRETURNHTML', 15); //done
 define('CMDRUNJS', 16); //done
-define('CMDSSLERRORSOFF', 17);
-define('CMDSSLERRORSON', 18);
-define('CMDHTACCESSUSERNAME', 19);
-define('CMDHTACCESSPASSWORD', 20); 
+define('CMDSSLERRORSOFF', 17); //TODO
+define('CMDSSLERRORSON', 18); //TODO
+define('CMDHTACCESSUSERNAME', 19); //TODO
+define('CMDHTACCESSPASSWORD', 20); //TODO
 define('CMDRETURNURL', 21); //done
 define('CMDRETURNHEADER', 22); /* last request header, could be an img  :/ */
 define('CMDRETURNHTMLSOUP', 23); //DEPRECATED
@@ -256,10 +256,7 @@ function webkitd_returnimage($fd,$regex){
 	//echo "imagelen ".$len;
 	$tlen = 0;
 	while($tlen < $len) {
-		//echo "tlen: ".$tlen;
-		//echo "len: ".$len;
 		$fragment = fread($fd, $len);
-		//echo $fragment;
 		$img .= $fragment;
 		$tlen += strlen($fragment);
 	}

@@ -15,6 +15,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 require('webkitdlib.php');
+$globalerrcode = null;
+$globalerrstr = null;
 
 //connect to webkitd
 $fd = webkitd_connect('127.0.0.1', 3817);
@@ -242,9 +244,9 @@ $res = webkitd_getcookies($fd);
 echo "COOKIES";
 echo $res;
 
-//XXX Setcookie sets all cookies - not just one
+//XXX Setcookies sets all cookies - not just one
 $res = webkitd_setcookies($fd, webkitd_getcookies($fd).".firefox.com\tTRUE\t/\tFALSE\t946684799\tMOZILLA_ID\t100103");
-echo $res;
+//echo $res;
 
 $res = webkitd_getcookies($fd);
 echo "COOKIES";
