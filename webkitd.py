@@ -398,7 +398,7 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		28 : cmdinputuncheck,
 		29 : cmdinputchoose,
 		30 : cmdinputselect,
-		31 : cmdformsubmit,
+		31 : cmdformsubmit, #DEPRECATED
 		32 : cmdscreenshot,
 		33 : cmdclicklink,
 		99 : cmdstat,
