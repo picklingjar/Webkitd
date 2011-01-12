@@ -421,12 +421,6 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		print >> sys.stderr, "%s Disconnected" % self.client_address[0]
 		Webkitd.browser.close()
 		
-		#browser.runjs("console.log('I can run jQuery: ' + jQuery('a:first').attr('href'))")
-		#browser.select("#esen")
-		#browser.fill("input[name=enit]", "hola")
-		#browser.click("input[name=b]")
-		#browser.wait_page_load()
-
 class ForkingServer(SocketServer.ForkingMixIn,SocketServer.TCPServer):
 	pass
 
