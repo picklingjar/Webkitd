@@ -21,9 +21,9 @@ define('CMDURL', 1); //done
 define('CMDGET', 2); //done
 define('CMDPOST', 3); //test
 define('CMDSETPOSTVAL', 4); //test
-define('CMDSETCOOKIE', 5); //test
+define('CMDSETCOOKIES', 5); //done
 define('CMDDELCOOKIE', 6); //test
-define('CMDRETURNCOOKIE', 7); //test
+define('CMDGETCOOKIES', 7); //done
 define('CMDSETPROXY', 8); //done
 define('CMDRETURNPROXY', 9); //done
 define('CMDSETREFERRER', 10); //done
@@ -113,8 +113,8 @@ function webkitd_setpostval($fd,$key,$val){
 }
 
 //5
-function webkitd_setcookie($fd, $cookie){
-	fwrite($fd, CMDSETCOOKIE." ".$cookie."\n");
+function webkitd_setcookies($fd, $cookie){
+	fwrite($fd, CMDSETCOOKIES." ".$cookie."\n");
 	$str = fgets($fd, 1024);
 	if(trim($str) == 'ok'){
 		return true;
@@ -133,15 +133,11 @@ function webkitd_deletecookie($fd, $cookie){
 }
 
 //7
-function webkitd_returncookie($fd, $cookie = null){
-	if($cookie != null){
-		fwrite($fd, CMDRETURNCOOKIE." ".$cookie."\n");
-	}
-	else {
-		fwrite($fd, CMDRETURNCOOKIE."\n");
-	}
+function webkitd_getcookies($fd){
+	fwrite($fd, CMDGETCOOKIES."\n");
 	$cookies = '';
-	while(($str = fgets($fd,4096)) != "\n"){
+	while($str = fgets($fd,8192)){
+		if(trim($str) == "# End Netscape HTTP Cookie File") break;
 		$cookies .= $str;
 	}
 	return $cookies;

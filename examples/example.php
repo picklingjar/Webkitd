@@ -21,6 +21,9 @@ $fd = webkitd_connect('127.0.0.1', 3817);
 if($fd == false){
 	die('Error: webkitd couldn\'t connect'."\n");
 }
+
+/*
+stat - check webkitd is alive
 $res = webkitd_stat($fd);
 if($res == false){
         die('Error: webkitd couldn\'t close'."\n");
@@ -28,12 +31,14 @@ if($res == false){
 else {
 	echo "STAT: ".$res;
 }
+*/
 
 //$res = webkitd_help($fd);
 //echo $res;
 
 //set url
-$res = webkitd_url($fd, 'http://127.0.0.1/wkd/index.php');
+/*$res = webkitd_url($fd, 'http://127.0.0.1/wkd/index.php');*/
+$res = webkitd_url($fd, 'http://www.ask.com');
 if($res == false){
 	webkitd_close($fd);
 	die('Error: webkitd couldn\'t set url'."\n");
@@ -87,13 +92,15 @@ if($res == false){
 	echo ('Error: webkitd couldn\'t execute - errcode: '.$globalerrcode.' errstr: '.$globalerrstr."\n");
 }
 
-//return url might not be the one we set due to 301s/302s etc
+/*
+//return url as it might not be the one we set due to 301s/302s etc
 $url = webkitd_returnurl($fd);
 if($url == false){
 	webkitd_close($fd);
 	die('Error: webkitd couldn\'t return url'."\n");
 }
 echo "url: ".$url."\n";
+*/
 
 /*
 //broke as returns last header (i.e. could be an image)
@@ -230,9 +237,19 @@ echo "HTML: ".$html."\n";
 */
 
 
+
 $res = webkitd_getcookies($fd);
 echo "COOKIES";
 echo $res;
+
+//XXX Setcookie sets all cookies - not just one
+$res = webkitd_setcookies($fd, webkitd_getcookies($fd).".firefox.com\tTRUE\t/\tFALSE\t946684799\tMOZILLA_ID\t100103");
+echo $res;
+
+$res = webkitd_getcookies($fd);
+echo "COOKIES";
+echo $res;
+
 //close the connection to be nice to the server
 $res = webkitd_close($fd);
 if($res == false){
