@@ -21,6 +21,13 @@ $fd = webkitd_connect('127.0.0.1', 3817);
 if($fd == false){
 	die('Error: webkitd couldn\'t connect'."\n");
 }
+$res = webkitd_stat($fd);
+if($res == false){
+        die('Error: webkitd couldn\'t close'."\n");
+}
+else {
+	echo "STAT: ".$res;
+}
 
 //$res = webkitd_help($fd);
 //echo $res;
@@ -190,6 +197,7 @@ else {
 }
 */
 
+/*
 $selector = 'input[name=group]:radio';
 $value = 'notagree';
 $res = webkitd_inputchoose($fd, $selector, $value);
@@ -199,8 +207,9 @@ if($res == true){
 else {
 	echo ('inputchoose failed, probably due to incorrect selector'."\n");
 }
+*/
 
-
+/*
 $selector = 'input[name=Submit]';
 $timeout = 30;
 $res = webkitd_clicklink($fd, $selector, $timeout);
@@ -210,14 +219,20 @@ if($res == true){
 else {
 	echo ('click link failed or timed out'."\n");
 }
+*/
 
-$html = webkitd_gethtml($fd);
+/*$html = webkitd_gethtml($fd);
 if($html == false){
 	webkitd_close($fd);
 	die('Error: webkitd couldn\'t get html'."\n");
 }
 echo "HTML: ".$html."\n";
+*/
 
+
+$res = webkitd_getcookies($fd);
+echo "COOKIES";
+echo $res;
 //close the connection to be nice to the server
 $res = webkitd_close($fd);
 if($res == false){

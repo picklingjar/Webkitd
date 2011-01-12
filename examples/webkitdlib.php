@@ -17,41 +17,41 @@
 
 
 //defines for commands from webkitd.py
-define('CMDURL', 1);
-define('CMDGET', 2);
-define('CMDPOST', 3);
-define('CMDSETPOSTVAL', 4);
-define('CMDSETCOOKIE', 5);
-define('CMDDELCOOKIE', 6);
-define('CMDRETURNCOOKIE', 7);
-define('CMDSETPROXY', 8);
-define('CMDRETURNPROXY', 9);
-define('CMDSETREFERRER', 10);
-define('CMDSETUSERAGENT', 11);
+define('CMDURL', 1); //done
+define('CMDGET', 2); //done
+define('CMDPOST', 3); //test
+define('CMDSETPOSTVAL', 4); //test
+define('CMDSETCOOKIE', 5); //test
+define('CMDDELCOOKIE', 6); //test
+define('CMDRETURNCOOKIE', 7); //test
+define('CMDSETPROXY', 8); //done
+define('CMDRETURNPROXY', 9); //done
+define('CMDSETREFERRER', 10); //done
+define('CMDSETUSERAGENT', 11); //done
 define('CMDNEWCOOKIEJAR', 12);
-define('CMDEXECUTE', 13);
-define('CMDQUIT', 14);
-define('CMDRETURNHTML', 15);
-define('CMDRUNJS', 16);
+define('CMDEXECUTE', 13); //done
+define('CMDQUIT', 14); //done
+define('CMDRETURNHTML', 15); //done
+define('CMDRUNJS', 16); //done
 define('CMDSSLERRORSOFF', 17);
 define('CMDSSLERRORSON', 18);
 define('CMDHTACCESSUSERNAME', 19);
-define('CMDHTACCESSPASSWORD', 20);
-define('CMDRETURNURL', 21);
+define('CMDHTACCESSPASSWORD', 20); 
+define('CMDRETURNURL', 21); //done
 define('CMDRETURNHEADER', 22); /* last request header, could be an img  :/ */
-define('CMDRETURNHTMLSOUP', 23);
-define('CMDRETURNIMAGE', 24);
-define('CMDRUNJQUERY', 25);
-define('CMDINPUTFILL', 26);
-define('CMDINPUTCHECK', 27);
-define('CMDINPUTUNCHECK', 28);
-define('CMDINPUTCHOOSE', 29);
-define('CMDINPUTSELECT', 30);
-define('CMDFORMSUBMIT', 31);
-define('CMDSCREENSHOT', 32);
-define('CMDCLICKLINK', 33);
-define('CMDSTAT', 99);
-define('CMDHELP', 0);
+define('CMDRETURNHTMLSOUP', 23); //DEPRECATED
+define('CMDRETURNIMAGE', 24); //done
+define('CMDRUNJQUERY', 25); //DEPRECATED
+define('CMDINPUTFILL', 26); //done
+define('CMDINPUTCHECK', 27); //done
+define('CMDINPUTUNCHECK', 28); //done
+define('CMDINPUTCHOOSE', 29); //done
+define('CMDINPUTSELECT', 30); //done
+define('CMDFORMSUBMIT', 31); //DEPRECATED -use clicklink
+define('CMDSCREENSHOT', 32); //done
+define('CMDCLICKLINK', 33); //done
+define('CMDSTAT', 99); //done
+define('CMDHELP', 0); //done
 
 function webkitd_connect($webkitdip = '127.0.0.1', $webkitdport = 3817){
 	$fd = fsockopen($webkitdip, $webkitdport, $errno, $errstr, 10);
@@ -110,6 +110,41 @@ function webkitd_setpostval($fd,$key,$val){
 		return true;
 	}
 	return false;
+}
+
+//5
+function webkitd_setcookie($fd, $cookie){
+	fwrite($fd, CMDSETCOOKIE." ".$cookie."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	return false;
+}
+
+//6
+function webkitd_deletecookie($fd, $cookie){
+	fwrite($fd, CMDDELCOOKIE." ".$cookie."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	return false;
+}
+
+//7
+function webkitd_returncookie($fd, $cookie = null){
+	if($cookie != null){
+		fwrite($fd, CMDRETURNCOOKIE." ".$cookie."\n");
+	}
+	else {
+		fwrite($fd, CMDRETURNCOOKIE."\n");
+	}
+	$cookies = '';
+	while(($str = fgets($fd,4096)) != "\n"){
+		$cookies .= $str;
+	}
+	return $cookies;
 }
 
 // 8
@@ -314,6 +349,16 @@ function webkitd_screenshot($fd){
 //33
 function webkitd_clicklink($fd, $selector, $timeout = 300){
 	fwrite($fd, CMDCLICKLINK." ".$selector." ".$timeout."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	return false;
+}
+
+//99
+function webkitd_stat($fd){
+	fwrite($fd, CMDSTAT."\n");
 	$str = fgets($fd, 1024);
 	if(trim($str) == 'ok'){
 		return true;
