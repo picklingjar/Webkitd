@@ -373,13 +373,13 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		3 : cmdpost,
 		4 : cmdsetpostval,
 		5 : cmdsetcookies,
-		6 : cmddelcookie,
+		6 : cmddelcookie, #DEPRECATED
 		7 : cmdgetcookies,
 		8 : cmdsetproxy,
 		9 : cmdreturnproxy,
 		10 : cmdsetreferrer,
 		11 : cmdsetuseragent,
-		12 : cmdnewcookiejar,
+		12 : cmdnewcookiejar, #DEPRECATED
 		13 : cmdexecute,
 		14 : cmdquit,
 		15 : cmdreturnhtml,
@@ -390,9 +390,9 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		20 : cmdhtaccesspassword,
 		21 : cmdreturnurl,
 		22 : cmdreturnheader,
-		23 : cmdreturnhtmlsoup,
+		23 : cmdreturnhtmlsoup, #DEPRECATED
 		24 : cmdreturnimage,
-		25 : cmdrunjquery,
+		25 : cmdrunjquery, #DEPRECATED
 		26 : cmdinputfill,
 		27 : cmdinputcheck,
 		28 : cmdinputuncheck,

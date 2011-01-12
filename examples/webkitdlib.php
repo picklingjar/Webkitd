@@ -22,13 +22,13 @@ define('CMDGET', 2); //done
 define('CMDPOST', 3); //test
 define('CMDSETPOSTVAL', 4); //test
 define('CMDSETCOOKIES', 5); //done
-define('CMDDELCOOKIE', 6); //test
+define('CMDDELCOOKIE', 6); //DEPRECATED
 define('CMDGETCOOKIES', 7); //done
 define('CMDSETPROXY', 8); //done
 define('CMDRETURNPROXY', 9); //done
 define('CMDSETREFERRER', 10); //done
 define('CMDSETUSERAGENT', 11); //done
-define('CMDNEWCOOKIEJAR', 12);
+define('CMDNEWCOOKIEJAR', 12); //DEPRECATED
 define('CMDEXECUTE', 13); //done
 define('CMDQUIT', 14); //done
 define('CMDRETURNHTML', 15); //done
