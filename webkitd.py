@@ -61,8 +61,8 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		self.request.send('TODO\n')
 		print "%s << TODO" % self.client_address[0]
 	
-	def cmdsetcookie(self,cmd):
-		Webkitd.browser.set_cookies(self, cmd)
+	def cmdsetcookies(self,cmd):
+		Webkitd.browser.set_cookies(cmd)
 		self.request.send('ok\n')
 		print "%s << ok" % self.client_address[0]
 	
@@ -70,9 +70,10 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		self.request.send('TODO\n')
 		print "%s << TODO" % self.client_address[0]
 
-	def cmdreturncookie(self,cmd):
-		self.request.send(Webkitd.browser.get_cookies(self))
-		print "%s << %s " % (self.client_address[0], Webkitd.browser.get_cookies(self))
+	def cmdgetcookies(self,cmd):
+		cookies = Webkitd.browser.get_cookies(self)
+		self.request.send(Webkitd.browser.get_cookies(cookies) + '\n' + '# End Netscape HTTP Cookie File\n')
+		print "%s << %s " % (self.client_address[0], cookies + '\n' + '# End Netscape HTTP Cookie File\n')
 	
 	def cmdsetproxy(self,cmd):
 		proxy = Webkitd.browser.set_proxy(cmd)
@@ -371,9 +372,9 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		2 : cmdget,
 		3 : cmdpost,
 		4 : cmdsetpostval,
-		5 : cmdsetcookie,
+		5 : cmdsetcookies,
 		6 : cmddelcookie,
-		7 : cmdreturncookie,
+		7 : cmdgetcookies,
 		8 : cmdsetproxy,
 		9 : cmdreturnproxy,
 		10 : cmdsetreferrer,
