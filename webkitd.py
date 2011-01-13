@@ -29,12 +29,15 @@ from PyQt4.QtCore import QUrl
 class Webkitd(SocketServer.BaseRequestHandler):
 	quit = 0
 	url = None
+	webview = 0
 	httpmethod = 'GET'
 
 	def setup(self):
 		Webkitd.url = None
 		Webkitd.quit = 0
-		Webkitd.browser = spynner.Browser(None, 3)
+		Webkitd.webview = 0
+		#Webkitd.browser = spynner.Browser(None, 3)
+		Webkitd.browser = spynner.Browser(None, 0)
 		Webkitd.browser.set_html_parser(pyquery.PyQuery)
 		Webkitd.browser.user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.7) Gecko/20100701 Firefox/3.6.7'
 		Webkitd.browser.referrer = None
@@ -157,10 +160,10 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		print "%s << %s" % (self.client_address[0],soup)
 	
 	def cmdrunjs(self,cmd):
-		#_runjs_on_jquery
-		Webkitd.browser.runjs(cmd);
-		self.request.send('ok\n')
-		print "%s << ok" % self.client_address[0]
+		res = Webkitd.browser.runjs(cmd)
+		self.request.send(res.toString() + '\n') 
+		self.request.send('# End run js' + '\n')
+		print "%s << %s" % (self.client_address[0], res.toString() + '\n' + '# End run js' + '\n')
 
 	def cmdrunjquery(self,cmd):
 		#_runjs_on_jquery
@@ -356,6 +359,17 @@ class Webkitd(SocketServer.BaseRequestHandler):
 			self.request.send('ok\n')
 			print "%s << ok" % self.client_address[0]
 
+	def cmdshowbrowser(self,cmd):
+		if Webkitd.webview == 0:
+			Webkitd.browser.create_webview()
+		Webkitd.webview = 1
+		Webkitd.browser.show()
+		#XXX would be nice if closing the browser stopped the waiting
+		Webkitd.browser.wait(int(cmd)) 
+		Webkitd.browser.hide()
+		self.request.send('ok\n')
+		print "%s << ok" % self.client_address[0]
+
 	def cmdstat(self,cmd):
 		self.request.send('ok\n')
 		print "%s << ok" % self.client_address[0]
@@ -401,6 +415,7 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		31 : cmdformsubmit, #DEPRECATED
 		32 : cmdscreenshot,
 		33 : cmdclicklink,
+		34 : cmdshowbrowser,
 		99 : cmdstat,
 		0 : cmdhelp
 	}
@@ -412,11 +427,10 @@ class Webkitd(SocketServer.BaseRequestHandler):
 
 		# self.request is the TCP socket connected to the client
 		while Webkitd.quit == 0:
-			self.data = self.request.recv(4096).strip()
+			self.data = self.request.recv(8192).strip()
 			command = self.data.partition(" ")
 			cmd = int(command[0])
 			print "%s >> Command %d (%s): %s" % (self.client_address[0], cmd,Webkitd.cmds[cmd], command[2])
-		
 			Webkitd.cmds[cmd](self,command[2])
 
 		print >> sys.stderr, "%s Disconnected" % self.client_address[0]
