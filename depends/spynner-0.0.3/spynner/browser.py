@@ -68,7 +68,9 @@ class Browser:
     """@ivar: Debug verbose level (L{ERROR}, L{WARNING}, L{INFO} or L{DEBUG})."""    
     event_looptime = 0.01
     """@ivar: Event loop dispatcher loop delay (seconds)."""
-    
+    _errorCode = None
+    _errorMessage = None
+
     _javascript_files = ["jquery.min.js", "jquery.simulate.js"]
 
     _javascript_directories = [
@@ -198,6 +200,8 @@ class Browser:
         if reply.error():
             self._debug(WARNING, "Reply error: %s - %d (%s)" % 
                 (url, reply.error(), reply.errorString()))
+            self._errorCode = reply.error()
+            self._errorMessage = reply.errorString()
         else:
             self._debug(INFO, "Reply successful: %s" % url)
         for header in reply.rawHeaderList():
@@ -810,8 +814,6 @@ class _ExtendedNetworkCookieJar(QNetworkCookieJar):
                 byte2str(cookie.name()),
                 byte2str(cookie.value()),
             ])
-        #lines = [get_line(cookie) for cookie in self.allCookies() 
-        #  if not cookie.isSessionCookie()]
         lines = [get_line(cookie) for cookie in self.allCookies()]
 
         return "\n".join(header + lines)
