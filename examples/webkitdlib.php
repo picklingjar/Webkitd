@@ -33,10 +33,10 @@ define('CMDEXECUTE', 13); //done
 define('CMDQUIT', 14); //done
 define('CMDRETURNHTML', 15); //done
 define('CMDRUNJS', 16); //done
-define('CMDSSLERRORSOFF', 17); //TODO
-define('CMDSSLERRORSON', 18); //TODO
-define('CMDHTACCESSUSERNAME', 19); //TODO
-define('CMDHTACCESSPASSWORD', 20); //TODO
+define('CMDSSLERRORSOFF', 17); //done
+define('CMDSSLERRORSON', 18); //done
+define('CMDHTACCESSUSERNAME', 19); //done
+define('CMDHTACCESSPASSWORD', 20); //done
 define('CMDRETURNURL', 21); //done
 define('CMDRETURNHEADER', 22); /* last request header, could be an img  :/ */
 define('CMDRETURNHTMLSOUP', 23); //DEPRECATED
@@ -50,6 +50,7 @@ define('CMDINPUTSELECT', 30); //done
 define('CMDFORMSUBMIT', 31); //DEPRECATED -use clicklink
 define('CMDSCREENSHOT', 32); //done
 define('CMDCLICKLINK', 33); //done
+define('CMDSHOWBROWSER', 34); //done
 define('CMDSTAT', 99); //done
 define('CMDHELP', 0); //done
 
@@ -122,15 +123,15 @@ function webkitd_setcookies($fd, $cookie){
 	return false;
 }
 
-//6
-function webkitd_deletecookie($fd, $cookie){
+//6 DEPRECATED
+/* function webkitd_deletecookie($fd, $cookie){
 	fwrite($fd, CMDDELCOOKIE." ".$cookie."\n");
 	$str = fgets($fd, 1024);
 	if(trim($str) == 'ok'){
 		return true;
 	}
 	return false;
-}
+} */
 
 //7
 function webkitd_getcookies($fd){
@@ -177,6 +178,8 @@ function webkitd_setuseragent($fd, $ua){
 	return false;
 }
 
+//12 DEPRECATED
+
 //13
 function webkitd_execute($fd){
 	global $globalerrcode;
@@ -221,8 +224,56 @@ function webkitd_gethtml($fd){
 //16
 function webkitd_runjs($fd, $js){
 	fwrite($fd, CMDRUNJS." ".$js."\n");
+	$res = '';
+	while($str = fgets($fd,8192)){
+		if(trim($str) == "# End run js") break;
+		$res .= $str;
+	}
+	return $res;
+}
+
+//17
+function webkitd_sslerrorsoff($fd){
+	fwrite($fd, CMDSSLERRORSOFF."\n");
 	$str = fgets($fd, 1024);
-	return $str;
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	fclose($fd);
+	return false;
+}
+
+//18
+function webkitd_sslerrorson($fd){
+	fwrite($fd, CMDSSLERRORSON."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	fclose($fd);
+	return false;
+}
+
+//19
+function webkitd_htaccessusername($fd, $username){
+	fwrite($fd, CMDHTACCESSUSERNAME." ".$username."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	fclose($fd);
+	return false;
+}
+
+//20
+function webkitd_htaccesspassword($fd, $password){
+	fwrite($fd, CMDHTACCESSPASSWORD." ".$password."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	fclose($fd);
+	return false;
 }
 
 //21
@@ -246,6 +297,8 @@ function webkitd_returnheader($fd){
 	return $header;
 }
 
+//23 DEPRECATED
+
 //24
 function webkitd_returnimage($fd,$regex){
 	fwrite($fd, CMDRETURNIMAGE." ".$regex."\n");
@@ -263,12 +316,12 @@ function webkitd_returnimage($fd,$regex){
 	return $img;
 }
 
-//25
-function webkitd_runjquery($fd, $js){
+//25 DEPRECATED
+/*function webkitd_runjquery($fd, $js){
 	fwrite($fd, CMDRUNJQUERY." ".$js."\n");
 	$str = fgets($fd, 1024);
 	return $str;
-}
+}*/
 
 //26
 function webkitd_inputfill($fd, $selector, $value){
@@ -342,6 +395,16 @@ function webkitd_screenshot($fd){
 //33
 function webkitd_clicklink($fd, $selector, $timeout = 300){
 	fwrite($fd, CMDCLICKLINK." ".$selector." ".$timeout."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	return false;
+}
+
+//34
+function webkitd_showbrowser($fd, $wait){
+	fwrite($fd, CMDSHOWBROWSER." ".$wait."\n");
 	$str = fgets($fd, 1024);
 	if(trim($str) == 'ok'){
 		return true;

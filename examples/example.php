@@ -39,8 +39,7 @@ else {
 //echo $res;
 
 //set url
-/*$res = webkitd_url($fd, 'http://127.0.0.1/wkd/index.php');*/
-$res = webkitd_url($fd, 'http://www.ask.com');
+$res = webkitd_url($fd, 'http://127.0.0.1/wkd/index.php/');
 if($res == false){
 	webkitd_close($fd);
 	die('Error: webkitd couldn\'t set url'."\n");
@@ -88,12 +87,50 @@ if($res == false){
 }
 */
 
+/*
+//turn ssl errors on (off by default)
+$res = webkitd_sslerrorson($fd);
+if($res == false){
+	webkitd_close($fd);
+	die('Error: webkitd couldn\'t turn ssl errors on'."\n");
+}
+*/
+
+/*
+//turn ssl errors off (off by default)
+$res = webkitd_sslerrorsoff($fd);
+if($res == false){
+	webkitd_close($fd);
+	die('Error: webkitd couldn\'t turn ssl errors off'."\n");
+}
+*/
+
+
+//set htaccess username
+$res = webkitd_htaccessusername($fd, 'admin');
+if($res == false){
+	echo 'Error: webkitd couldn\'t set htaccess username'."\n";
+	webkitd_close($fd);
+	die(1);
+}
+
+//set htaccess pasword
+$res = webkitd_htaccesspassword($fd, 'jamaca1');
+if($res == false){
+	webkitd_close($fd);
+	die('Error: webkitd couldn\'t set htaccess password'."\n");
+}
+
 //execute request - download page
 $res = webkitd_execute($fd);
 if($res == false){
 	echo ('Error: webkitd couldn\'t execute - errcode: '.$globalerrcode.' errstr: '.$globalerrstr."\n");
+	webkitd_close($fd);
+	die(1);
 }
 
+
+webkitd_showbrowser($fd, 10);
 /*
 //return url as it might not be the one we set due to 301s/302s etc
 $url = webkitd_returnurl($fd);
@@ -131,7 +168,7 @@ echo "HTML: ".$html."\n";
 
 /*
 //return image based on regex
-$regex = "/.*pic.*jpg/i";
+$regex = "/" . ".*testimage.*" . "/i";
 $imgdata = webkitd_returnimage($fd, $regex);
 if($imgdata == false){
 	webkitd_close($fd);
@@ -148,6 +185,7 @@ else {
 		echo ('didn\'t write image'."\n");
 	}
 }
+*/
 
 /*
 //return screenshot
@@ -196,7 +234,7 @@ else {
 
 /*
 //select dropdown
-$selector = 'select[name=company] option[value=Trainline.com]';
+$selector = 'select[name=company] option[value=ThePicklingJar.com]';
 $res = webkitd_inputselect($fd, $selector);
 if($res == true){
 	echo ('inputselect ok'."\n");
@@ -207,6 +245,7 @@ else {
 */
 
 /*
+//select radio button
 $selector = 'input[name=group]:radio';
 $value = 'notagree';
 $res = webkitd_inputchoose($fd, $selector, $value);
@@ -218,7 +257,12 @@ else {
 }
 */
 
-/*
+//$res = webkitd_runjs($fd, "var firebug = document.createElement('script'); firebug.setAttribute('src','https://getfirebug.com/firebug-lite.js'); document.body.appendChild(firebug); (function(){ if(window.firebug.version){firebug.init();} else {setTimeout(arguments.callee);}})(); void(firebug);");
+
+//webkitd_showbrowser($fd, 5);
+
+/* 
+//click link
 $selector = 'input[name=Submit]';
 $timeout = 30;
 $res = webkitd_clicklink($fd, $selector, $timeout);
@@ -239,18 +283,17 @@ echo "HTML: ".$html."\n";
 */
 
 
-
+/*
 $res = webkitd_getcookies($fd);
 echo "COOKIES";
 echo $res;
+*/
 
+/*
 //XXX Setcookies sets all cookies - not just one
 $res = webkitd_setcookies($fd, webkitd_getcookies($fd).".firefox.com\tTRUE\t/\tFALSE\t946684799\tMOZILLA_ID\t100103");
 //echo $res;
-
-$res = webkitd_getcookies($fd);
-echo "COOKIES";
-echo $res;
+*/
 
 //close the connection to be nice to the server
 $res = webkitd_close($fd);
