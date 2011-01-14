@@ -25,17 +25,22 @@ import platform
 import os
 from PyQt4.QtNetwork import QNetworkRequest
 from PyQt4.QtCore import QUrl
+#from guppy import hpy; h=hpy()
+
 
 class Webkitd(SocketServer.BaseRequestHandler):
 	quit = 0
 	url = None
 	webview = 0
 	httpmethod = 'GET'
-
+	htaccessusername = None
+	htaccesspassword = None
 	def setup(self):
 		Webkitd.url = None
 		Webkitd.quit = 0
 		Webkitd.webview = 0
+		Webkitd.htaccessusername = None
+		Webkitd.htaccesspassword = None
 		#Webkitd.browser = spynner.Browser(None, 3)
 		Webkitd.browser = spynner.Browser(None, 0)
 		Webkitd.browser.set_html_parser(pyquery.PyQuery)
@@ -181,13 +186,22 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		self.request.send('ok\n')
 		print "%s << ok" % self.client_address[0]
 
+	@staticmethod
+	def htaccesscallback(url, realm):
+		if Webkitd.htaccessusername == None:
+			return false
+		return(Webkitd.htaccessusername, Webkitd.htaccesspassword)
+
 	def cmdhtaccessusername(self,cmd):
-		self.request.send('TODO\n')
-		print "%s << TODO" % self.client_address[0]
+		Webkitd.htaccessusername = cmd
+		Webkitd.browser.set_http_authentication_callback(Webkitd.htaccesscallback)
+		self.request.send('ok\n')
+		print "%s << ok" % self.client_address[0]
 
 	def cmdhtaccesspassword(self,cmd):
-		self.request.send('TODO\n')
-		print "%s << TODO" % self.client_address[0]
+		Webkitd.htaccesspassword = cmd
+		self.request.send('ok\n')
+		print "%s << ok" % self.client_address[0]
 
 	def cmdreturnurl(self,cmd):
 		self.request.send('%s\n' % Webkitd.browser.url)
@@ -436,6 +450,11 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		print >> sys.stderr, "%s Disconnected" % self.client_address[0]
 		Webkitd.browser.close()
 		
+	def finish(self):
+		pass
+		#print h.heap()
+
+	
 class ForkingServer(SocketServer.ForkingMixIn,SocketServer.TCPServer):
 	pass
 
@@ -449,3 +468,4 @@ if __name__ == "__main__":
 		server = ForkingServer((HOST, PORT), Webkitd)
 	print >> sys.stderr, 'WebkitD server started: waiting for connections...'
 	server.serve_forever()
+
