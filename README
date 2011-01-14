@@ -34,7 +34,7 @@ nc 127.0.0.1 3817 <-- connect to Webkitd using netcat
 1 http://www.thepicklingjar.com <-- Command 1 sets the url to load
 13 <-- Command 13 executes request
 15 <-- Command 15 returns the html, all links are resolved to full paths
-25 _jQuery('#content').html('test text'); <-- Command 25 runs jQuery, updating content div with "test text"
+16 _jQuery('#content').html('test text'); <-- Command 16 runs jQuery, updating content div with "test text"
 15 <-- Command 15 returns the html after javascript has run
 
 Note: Some commands return binary data with the length followed by the data 
@@ -52,4 +52,4 @@ Notes
 
 Not as headless as we'd like but running with a framebuffer fixed the rendering of certain sites (fifa.com for example).
 
-The usual Jquery selector $() should be replaced with _jQuery to use the internal jquery module
+The usual Jquery selector $() should be replaced with _jQuery to use the internal copy of jquery
