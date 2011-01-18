@@ -35,7 +35,7 @@ from PyQt4.QtCore import QSize, QDateTime, QVariant
 from PyQt4.QtGui import QApplication, QImage, QPainter, QRegion, QAction
 from PyQt4.QtNetwork import QNetworkCookie, QNetworkAccessManager, QNetworkReply
 from PyQt4.QtNetwork import QNetworkCookieJar, QNetworkRequest, QNetworkProxy
-from PyQt4.QtWebKit import QWebPage, QWebView, QWebFrame
+from PyQt4.QtWebKit import * #QWebPage, QWebView, QWebFrame, 
 
 # Debug levels
 ERROR, WARNING, INFO, DEBUG = range(4)
@@ -356,8 +356,8 @@ class Browser:
     html = property(_get_html)
     """Rendered HTML in current page."""
                  
-    soup = property(_get_soup) #doesn't update soup when called
-    #soup = None #lazy fix - removing the property fixes it
+    #soup = property(_get_soup) #doesn't update soup when called
+    soup = None #lazy fix - removing the property fixes it
     """HTML soup (see L{set_html_parser})."""
                
     #{ Basic interaction with browser
@@ -489,6 +489,21 @@ class Browser:
 
     #}
                         
+    #{ Webframe
+    def set_webframe(self, framenumber):
+	if framenumber == 0 or framenumber == None:
+            self.webframe = self.webpage.mainFrame()
+	else:
+            cf = self.webframe.childFrames()
+            if framenumber > len(cf):
+            	raise SpynnerError("framenumber in set_webframe is larger than the number of frames in the page")
+            else:
+		#print "FRAMENUMBER %d" % int(framenumber)
+                self.webframe = cf[int(framenumber) - 1]
+		jscode = "var %s = jQuery.noConflict();" % self.jslib
+		self.runjs(self.javascript + jscode, debug=False)
+    #}
+
     #{ Form manipulation
     
     def fill(self, selector, value):
@@ -540,7 +555,7 @@ class Browser:
         """
         if debug:
             self._debug(DEBUG, "Run Javascript code: %s" % jscode)
-        return self.webpage.mainFrame().evaluateJavaScript(jscode)
+        return self.webframe.evaluateJavaScript(jscode)
 
     def set_javascript_confirm_callback(self, callback):
         """
