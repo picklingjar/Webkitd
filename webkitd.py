@@ -30,7 +30,7 @@ import sipconfig
 from PyQt4.QtWebKit import *
 #from guppy import hpy; h=hpy()
 
-version = '0.2.0'
+version = '0.3.0'
 
 class Webkitd(SocketServer.BaseRequestHandler):
 	quit = 0
