@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #Webkitd - A headless webkit daemon written in python
 """
 Copyright (C) 2010 The Pickling Jar Limited
@@ -24,9 +25,12 @@ import tempfile
 import platform
 import os
 from PyQt4.QtNetwork import QNetworkRequest
-from PyQt4.QtCore import QUrl
+from PyQt4.QtCore import QUrl, qVersion, PYQT_VERSION_STR
+import sipconfig
+from PyQt4.QtWebKit import *
 #from guppy import hpy; h=hpy()
 
+version = '0.2.0'
 
 class Webkitd(SocketServer.BaseRequestHandler):
 	quit = 0
@@ -41,8 +45,8 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		Webkitd.webview = 0
 		Webkitd.htaccessusername = None
 		Webkitd.htaccesspassword = None
-		#Webkitd.browser = spynner.Browser(None, 3)
-		Webkitd.browser = spynner.Browser(None, 0)
+		#Webkitd.browser = spynner.Browser(None, 0)
+		Webkitd.browser = spynner.Browser(None, 3)
 		Webkitd.browser.set_html_parser(pyquery.PyQuery)
 		Webkitd.browser.user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.7) Gecko/20100701 Firefox/3.6.7'
 		Webkitd.browser.referrer = None
@@ -384,6 +388,20 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		self.request.send('ok\n')
 		print "%s << ok" % self.client_address[0]
 
+	def cmdiframecount(self,cmd):
+		self.request.send("%s\n" % len(Webkitd.browser.webframe.childFrames()))
+		print "%s << %d" % (self.client_address[0], len(Webkitd.browser.webframe.childFrames()))
+	
+	def cmdiframesourceurl(self,cmd):
+		cf = Webkitd.browser.webframe.childFrames()
+		self.request.send("%s\n" % cf[int(cmd)].url().toString())
+		print "%s << %s" % (self.client_address[0], cf[int(cmd)].url().toString())
+
+	def cmdiframeselect(self,cmd):
+		Webkitd.browser.set_webframe(int(cmd))
+		self.request.send('ok\n')
+		print "%s << ok" % self.client_address[0]
+
 	def cmdstat(self,cmd):
 		self.request.send('ok\n')
 		print "%s << ok" % self.client_address[0]
@@ -430,6 +448,9 @@ class Webkitd(SocketServer.BaseRequestHandler):
 		32 : cmdscreenshot,
 		33 : cmdclicklink,
 		34 : cmdshowbrowser,
+		35 : cmdiframecount,
+		36 : cmdiframesourceurl,
+		37 : cmdiframeselect,
 		99 : cmdstat,
 		0 : cmdhelp
 	}
@@ -466,6 +487,7 @@ if __name__ == "__main__":
 		server = SocketServer.TCPServer((HOST, PORT), Webkitd)
 	else:
 		server = ForkingServer((HOST, PORT), Webkitd)
+	print >> sys.stderr, "Python: %s.%s.%s - SIP: %s - QT: %s\nPyQt: %s - Webkit: %s - WebkitD: %s" % (sys.version_info[0],sys.version_info[1],sys.version_info[2], sipconfig.Configuration().sip_version_str, qVersion(), PYQT_VERSION_STR, qWebKitVersion(), version)
 	print >> sys.stderr, 'WebkitD server started: waiting for connections...'
 	server.serve_forever()
 

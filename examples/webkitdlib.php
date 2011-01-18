@@ -51,6 +51,9 @@ define('CMDFORMSUBMIT', 31); //DEPRECATED -use clicklink
 define('CMDSCREENSHOT', 32); //done
 define('CMDCLICKLINK', 33); //done
 define('CMDSHOWBROWSER', 34); //done
+define('CMDIFRAMECOUNT', 35); //done
+define('CMDIFRAMESOURCEURL', 36); //done
+define('CMDIFRAMESELECT', 37); //TODO
 define('CMDSTAT', 99); //done
 define('CMDHELP', 0); //done
 
@@ -405,6 +408,37 @@ function webkitd_clicklink($fd, $selector, $timeout = 300){
 //34
 function webkitd_showbrowser($fd, $wait){
 	fwrite($fd, CMDSHOWBROWSER." ".$wait."\n");
+	$str = fgets($fd, 1024);
+	if(trim($str) == 'ok'){
+		return true;
+	}
+	return false;
+}
+
+//35
+function webkitd_iframecount($fd){
+	fwrite($fd, CMDIFRAMECOUNT."\n");
+	$str = fgets($fd, 1024);
+	return($str);
+}
+
+//36
+function webkitd_iframesourceurl($fd,$iframenum){
+	fwrite($fd, CMDIFRAMESOURCEURL." ".$iframenum."\n");
+	$str = fgets($fd, 1024);
+	return($str);
+}
+
+//37
+function webkitd_iframehtml($fd,$iframenum){
+	fwrite($fd, CMDIFRAMEHTML." ".$iframenum."\n");
+	$str = fgets($fd, 1024);
+	return($str);
+}
+
+//38
+function webkitd_iframeselect($fd,$iframenum){
+	fwrite($fd, CMDIFRAMESELECT." ".$iframenum."\n");
 	$str = fgets($fd, 1024);
 	if(trim($str) == 'ok'){
 		return true;
