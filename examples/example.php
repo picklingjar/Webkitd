@@ -106,6 +106,7 @@ if($res == false){
 */
 
 
+/*
 //set htaccess username
 $res = webkitd_htaccessusername($fd, 'admin');
 if($res == false){
@@ -113,15 +114,18 @@ if($res == false){
 	webkitd_close($fd);
 	die(1);
 }
+*/
 
+/*
 //set htaccess pasword
-$res = webkitd_htaccesspassword($fd, 'jamaca1');
+$res = webkitd_htaccesspassword($fd, 'password');
 if($res == false){
 	webkitd_close($fd);
 	die('Error: webkitd couldn\'t set htaccess password'."\n");
 }
+*/
 
-//execute request - download page
+//execute request - i.e. download page
 $res = webkitd_execute($fd);
 if($res == false){
 	echo ('Error: webkitd couldn\'t execute - errcode: '.$globalerrcode.' errstr: '.$globalerrstr."\n");
@@ -129,8 +133,53 @@ if($res == false){
 	die(1);
 }
 
+//echo webkitd_gethtml($fd);
 
-webkitd_showbrowser($fd, 10);
+//check for iframes
+$res = webkitd_iframecount($fd);
+if($res == false || $res == 0){
+	echo "Iframe Count: 0";
+}
+else {
+	echo "Iframe Count: ".$res;
+	for($i = 0; $i<$res; $i++){
+		echo "IFrame $i: ".webkitd_iframesourceurl($fd,$i)."\n";
+	}
+	//webkitd_iframeselect 0 = mainFrame, so +1 onto which frame you want to select
+	webkitd_iframeselect($fd, 0 + 1);
+
+	/*
+	//iframe in an iframe
+	$res = webkitd_iframecount($fd);
+	echo "Iframe Count: ".$res;
+	for($i = 0; $i<$res; $i++){
+		echo "IFrame $i: ".webkitd_iframesourceurl($fd,$i)."\n";
+	}
+	*/
+
+	echo "IFRAME HTML: ".webkitd_gethtml($fd)."\n";
+	$res = webkitd_runjs($fd, "document.getElementById('ppp').innerHTML = 'basic js'");
+	echo "IFRAME HTML: ".webkitd_gethtml($fd)."\n";
+	$res = webkitd_runjs($fd, "(function(){ _jQuery('#ppp').html('jquery text')})();");
+	echo "IFRAME HTML: ".webkitd_gethtml($fd)."\n";
+	webkitd_iframeselect($fd, 0); //mainframe
+	webkitd_iframeselect($fd, 0 + 1); //first iframe
+	echo "IFRAME HTML: ".webkitd_gethtml($fd)."\n";
+	$res = webkitd_runjs($fd, "(function(){ _jQuery('#ppp').html('jquery text 2')})();");
+	echo "IFRAME HTML: ".webkitd_gethtml($fd)."\n";
+
+}
+
+/*
+//back to mainframe
+//webkitd_iframeselect($fd, 0);
+*/
+//webkitd_runjs($fd, "_jQuery('#content').html('jquery text 2');");
+//echo "html: ".webkitd_gethtml($fd);
+
+
+
+//webkitd_showbrowser($fd, 10);
 /*
 //return url as it might not be the one we set due to 301s/302s etc
 $url = webkitd_returnurl($fd);
